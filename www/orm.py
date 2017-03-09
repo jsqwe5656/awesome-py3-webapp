@@ -8,7 +8,7 @@ import logging; logging.basicConfig(level=logging.INFO)
 def log(sql,args=()):
     logging.info('SQL %s,args=%s' % (sql,args))
 
-#创建一个连接池
+#创建一个连接池,这里的二参**kw是一个dict
 async def create_pool(loop,**kw):
     logging.info('create database connection pool..')
     global __pool
