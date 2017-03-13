@@ -1,11 +1,13 @@
 -- schema.sql
 
+-- 如果存在数据库则删除
 drop database if exists awesome;
-
+-- 重新创建数据库
 create database awesome;
-
+-- 使用数据库
 use awesome;
-grant select,insert,update,delete on awsome.* to 'www-data'@'localhost' identified by 'www-data';
+-- 给数据库用户授权 如果没有该用户 mysql会自动创建一个
+grant select,insert,update,delete on awesome.* to 'zbf'@'localhost' identified by '123456';
 
 create table users(
     `id` varchar(50) not null.
