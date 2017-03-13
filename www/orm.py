@@ -73,6 +73,8 @@ async def execute(sql,args,autocommit=True):
             if not autocommit:
                 await conn.rollback()
             raise
+        finally:
+            conn.close()
         return affected
 
 #把查询字段计数并转化成sql识别的?
