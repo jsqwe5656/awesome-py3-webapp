@@ -10,7 +10,7 @@ use awesome;
 grant select,insert,update,delete on awesome.* to 'zbf'@'localhost' identified by '123456';
 
 create table users(
-    `id` varchar(50) not null.
+    `id` varchar(50) not null,
     `email` varchar(50) not null,
     `paaawd` varchar(50) not null,
     `admin` varchar(50) not null,
