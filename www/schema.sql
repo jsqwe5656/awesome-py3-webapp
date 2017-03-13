@@ -12,7 +12,7 @@ grant select,insert,update,delete on awesome.* to 'zbf'@'localhost' identified b
 create table users(
     `id` varchar(50) not null,
     `email` varchar(50) not null,
-    `paaawd` varchar(50) not null,
+    `passwd` varchar(50) not null,
     `admin` varchar(50) not null,
     `name` varchar(50) not null,
     `image` varchar(500) not null,
