@@ -17,8 +17,8 @@ create table users(
     `name` varchar(50) not null,
     `image` varchar(500) not null,
     `created_at` real not null,
-    unique key `idx_email` (`email`),
-    key `idx_created_at` (`created_at`),
+    unique key `idx_email` (`email`),       -- 约束非主键中不输入重复的值
+    key `idx_created_at` (`created_at`),    -- 约束索引
     primary key (`id`)
 ) engine=innodb default charset=utf8;
 
