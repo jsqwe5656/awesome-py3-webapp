@@ -6,7 +6,7 @@ sina.html
 
 # C extensions
 *.so
-
+.idea
 # Packages
 *.egg
 *.egg-info
@@ -52,3 +52,4 @@ MANIFEST
 .mr.developer.cfg
 .project
 .pydevproject
+/.idea
