@@ -8,7 +8,7 @@ orm = www.orm
 
 async def test():
     await orm.create_pool(loop=loop,user='zbf',password='123456',db='awesome')
-    u = User(name='test',email='516845590@qq.com',passwd='123456',image='about:blank')
+    u = User(name='zbf',email='qwe597983960@126.com',passwd='123456',image='about:blank')
     try:
         await u.save()
     except BaseException as e:
