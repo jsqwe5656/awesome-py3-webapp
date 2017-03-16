@@ -1,7 +1,7 @@
 {%extends '__base__.html'%}
 {% block title %}注册{% endblock %}
 {%block beforehead%}
-<script>
+<script xmlns:v-on="http://www.w3.org/1999/xhtml">
 function validateEmail(email){
     var re = /^[a-z0-9\.\-\_]+\@[a-z0-9\-\_]+(\.[a-z0-9\-\_]+){1,4}$/;
     return re.test(email.toLowerCase())
