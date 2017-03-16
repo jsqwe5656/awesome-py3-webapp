@@ -7,65 +7,65 @@
     <title>{% block title %}?{% endblock %} - Awesome PY WebApp</title>
     <link rel="stylesheet" href="/static/css/uikit.min.css">
     <link rel="stylesheet" href="/static/css/uikit.gradient.min.css">
-    <link rel="stylesheet" href="/static/css/awesome.css" />
-    <script src="/static/js/jquery.min.js"/>
-    <script src="/static/js/md5.js"/>
-    <script src="/static/js/uikit.js"/>
-    <script src="/static/js/awesome.js"/>
+    <link rel="stylesheet" href="/static/css/awesome.css"/>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/md5.js"></script>
+    <script src="/static/js/uikit.js"></script>
+    <script src="/static/js/awesome.js"></script>
     {%block beforehead%}<!--可以在 head 标签关闭前插入 JS代码-->{%endblock%}
 </head>
 <body>
-    <nav class="uk-navbar uk-navbar-attached uk-margin-bottom">
-        <div class="uk-container uk-container-center">
-            <a href="/" class="uk-navbar-brand">Awesom</a>
-            <ul class="uk-navbar-nav">
-                <li data-url="blohs"><a href="/"><i class="uk-icon-home"/>日志</a></li>
-                <li><a target="_blank" href="#"><i class="uk-icon-home"/>教程</a></li>
-                <li><a target="_blank" href="#"><i class="uk-icon-home"/>源码</a></li>
-            </ul>
-            <div class="uk-navbar-flip">
-                <ul class="uk-navbar-nav">
-                    {%if user%}
-                        <li class="uk-parent" data-uk-dropdown>
-                            <a href="#0"><i class="uk-icon-user"/>{{user.name}} </a>
-                            <div class="uk-dropdown uk-dropdown-navbar">
-                                <ul class="uk-nav uk-nav-navbar">
-                                    <li><a href="/signout"><i class="uk-icon-sign-out"/>登出</a></li>
-                                </ul>
-                            </div>
-                        </li>
-                    {%else%}
-                        <li><a href="/signin"><i class="uk-icon-sign-in"/>登录</a></li>
-                        <li><a href="/register"><i class="uk-icon-edit"/>注册</a></li>
-                    {%endif%}
-                </ul>
-            </div>
-        </div>
-    </nav>
-
+<nav class="uk-navbar uk-navbar-attached uk-margin-bottom" >
     <div class="uk-container uk-container-center">
-        <div class="uk-grid">
-            <!--content-->
-            {%block content%}
-            {%endlock%}
-            <!--//content-->
+        <a href="/" class="uk-navbar-brand ">ZBF博客</a>
+        <ul class="uk-navbar-nav">
+            <li data-url="blogs"><a href="/"><i class="uk-icon-home"></i>日志</a></li>
+            <li><a target="_blank" href="#"><i class="uk-icon-book"></i>教程</a></li>
+            <li><a target="_blank" href="https://github.com/jsqwe5656/awesome-py3-webapp"><i class="uk-icon-code"></i>源码</a></li>
+        </ul>
+        <div class="uk-navbar-flip">
+            <ul class="uk-navbar-nav">
+                {%if user%}
+                <li class="uk-parent" data-uk-dropdown>
+                    <a href="#0"><i class="uk-icon-user"></i>{{user.name}} </a>
+                    <div class="uk-dropdown uk-dropdown-navbar">
+                        <ul class="uk-nav uk-nav-navbar">
+                            <li><a href="/signout"><i class="uk-icon-sign-out"></i>登出</a></li>
+                        </ul>
+                    </div>
+                </li>
+                {%else%}
+                <li><a href="/signin"><i class="uk-icon-sign-in"></i>登录</a></li>
+                <li><a href="/register"><i class="uk-icon-subway"></i>注册</a></li>
+                {%endif%}
+            </ul>
         </div>
     </div>
-    <div class="uk-margin-large-top" style="background-color:#eee; border-top:1px solid #ccc;">
-        <div class="uk-container uk-container-center uk-text-center">
-            <div class="uk-panel uk-margin-top uk-margin-bottom">
-                <p>
-                    <a target="_blank" href="#" class="uk-icon-button uk-icon-weibo"/>
-                    <a target="_blank" href="#" class="uk-icon-button uk-icon-github"/>
-                    <a target="_blank" href="#" class="uk-icon-button uk-icon-linkdin-square"/>
-                    <a target="_blank" href="#" class="uk-icon-button uk-icon-twitter"/>
-                </p>
-                <p>Power by<a href="#">Awesome Python WebApp</a>Copyright &copy;2014[<a href="/manage/" target="_blank">Manage</a>]</p>
-                <p><a href="http://www.liaoxuefeng.com/" target="_blank">www.liaoxuefeng.com</a>All rights reserved</p>
-                <a target="_blank" href="#"><i class="uk-icon-html5" style="font-size:64px; color: #444;"/> </a>
-            </div>
+</nav>
+
+<div class="uk-container uk-container-center">
+    <div class="uk-grid">
+        <!--content-->
+        {% block content %}
+        {% endblock %}
+        <!--//content-->
+    </div>
+</div>
+<div class="uk-margin-large-top" style="background-color:#eee; border-top:1px solid #ccc;">
+    <div class="uk-container uk-container-center uk-text-center">
+        <div class="uk-panel uk-margin-top uk-margin-bottom">
+            <p>
+                <a target="_blank" href="#" class="uk-icon-button uk-icon-weibo"></a>
+                <a target="_blank" href="#" class="uk-icon-button uk-icon-github"></a>
+                <a target="_blank" href="#" class="uk-icon-button uk-icon-linkedin-square"></a>
+                <a target="_blank" href="#" class="uk-icon-button uk-icon-twitter"></a>
+            </p>
+            <p>Power by<a href="#">Awesome Python WebApp</a>Copyright &copy;2017[<a href="/manage/" target="_blank">Manage</a>]</p>
+            <p><a href="http://www.liaoxuefeng.com/" target="_blank">www.liaoxuefeng.com</a>All rights reserved</p>
+            <a target="_blank" href="#"><i class="uk-icon-html5" style="font-size:64px; color: #444;"></i></a>
         </div>
     </div>
+</div>
 
 </body>
 </html>
