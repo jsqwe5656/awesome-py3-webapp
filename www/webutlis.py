@@ -34,7 +34,7 @@ def post(path):
         def wrapper(*args, **kw):
             return func(*args, **kw)
 
-        wrapper.__method__ = 'GET'
+        wrapper.__method__ = 'POST'
         wrapper.__route__ = path
         return wrapper
 
@@ -109,9 +109,9 @@ class RequestHandler(object):
         kw = None
         if self._has_var_kw_arg or self._has_named_kw_arg or self._required_kw_args:
             if request.method == 'POST':
-                if not request.conntent_type:
+                if not request.content_type:
                     return web.HTTPBadRequest('Missing Content-Type.')
-                ct = request.conntent_type.lower()
+                ct = request.content_type.lower()
                 if ct.startswith('application/json'):
                     params = await request.json()
                     if not isinstance(params, dict):
@@ -121,7 +121,7 @@ class RequestHandler(object):
                     params = await request.post()
                     kw = dict(**params)
                 else:
-                    return web.HTTPBadRequest('unsupported Content-Type:%s' % request.conntent_type)
+                    return web.HTTPBadRequest('unsupported Content-Type:%s' % request.content_type)
             if request.method == 'GET':
                 qs = request.query_string
                 if qs:
