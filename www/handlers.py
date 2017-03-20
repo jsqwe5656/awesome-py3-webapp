@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import re, time, json, logging, hashlib, base64, asyncio
+import www.markdown2
 from www.webutlis import get, post
 from aiohttp import web
 from www.models import User, Comment, Blog, next_id
 from www.apis import APIError, APIPermissionError, APIValueErrpr
 from conf.config import configs
 
+markdown2 = www.markdown2
 COOKIE_NAME = 'awesession'
 _COOKIE_KEY = configs.session.secret
 
@@ -100,10 +102,22 @@ async def index(request):
         }
 
 
+def text2html(text):
+    lines = map(lambda s:'<p>%s</p>' % s.replace('&','&amp;').replace('<', '&lt;').replace('>', '&gt;'), filter(lambda s: s.strip() != '', text.split('\n')))
+    return ''.join(lines)
 
 @get('/blog/{id}')
-def get_blog(id):
-    pass
+async def api_get_blog(id):
+    blog = await Blog.find(id)
+    comments = await Comment.findAll('blog_id=?',[id],orderBy='created_at_desc')
+    for c in comments:
+        c.html_content = text2html(c.content)
+    blog.html_content = markdown2.markdown(blog.content)
+    return {
+        '__template__':'blog.html',
+        'blog':blog,
+        'comments':comments
+    }
 
 @post('/api/blogs')
 def api_create_blogs(request,*,name,summary,content):
@@ -127,6 +141,10 @@ def manage_create_blog():
         'action':'/api/blogs'
     }
 
+@get('/api/blogs/{id}')
+async def api_get_blog(*,id):
+    blog = await Blog.find(id)
+    return blog
 
 @get('/api/comments')
 def api_comments(*, page='1'):
