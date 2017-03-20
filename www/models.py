@@ -27,6 +27,7 @@ class Blog(Model):
     id = StringField(primary_key=True, default=next_id(), ddl='varchar(50)')
     user_id = StringField('varchar(50)')
     user_img = StringField('varchar(500)')
+    user_name = StringField('varchar(50)')
     name = StringField('varchar(50)')
     summary = StringField('varchar(200)')
     content = TextField()

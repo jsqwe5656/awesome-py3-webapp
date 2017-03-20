@@ -18,6 +18,18 @@ def user2cookie(user, max_age):
     L = [user.id, expires, hashlib.sha1(s.encode('utf-8')).hexdigest()]
     return '-'.join(L)
 
+async def auth_factory(app,handler):
+    async def auth(request):
+        logging.info('check users:%s,%s' %(request.method,request.path))
+        request.__user__ = None
+        cookie_str = request.cookies.get(COOKIE_NAME)
+        if cookie_str:
+            user = await cookie2user(cookie_str)
+            if user :
+                logging.info('set current user:%s'%user.email)
+                request.__user__ = user
+        return (await handler(request))
+    return auth
 
 async def cookie2user(cookie_str):
     if not cookie_str:
@@ -68,6 +80,10 @@ async def authenticate(*, email, passwd):
     r.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
     return r
 
+#检查是否为admin
+def check_admin(request):
+    if request.__user__ is None or request.__user__.admin:
+        raise APIPermissionError()
 
 @get('/')
 async def index(request):
@@ -78,15 +94,38 @@ async def index(request):
         Blog(id='3', name='Learn Swift', summary=summary, created_at=time.time() - 7200)
     ]
     return {
-        '__template__': 'blogs.html',
-        'blogs': blogs
-        #'user':request.user
-    }
+            '__template__': 'blogs.html',
+            'blogs': blogs
+            #'user':request.user
+        }
+
 
 
 @get('/blog/{id}')
 def get_blog(id):
     pass
+
+@post('/api/blogs')
+def api_create_blogs(request,*,name,summary,content):
+    check_admin(request)
+    if not name or name.strip():
+        raise APIValueErrpr('name','name is not be empty')
+    if not summary or summary.strip():
+        raise APIValueErrpr('summary', 'summary is not be empty')
+    if not content or content.strip():
+        raise APIValueErrpr('content', 'content is not be empty')
+    user = request.__user__
+    blog = Blog(user_id=user.id,user_img=user.image,user_name=user.name,summary=summary.strip(),content=content.strip(),name=name.strip())
+    yield from blog.save()
+    return blog
+
+@get('/manage/blogs/create')
+def manage_create_blog():
+    return {
+        '__template__':'manage_blog_edit.html',
+        'id':'',
+        'action':'/api/blogs'
+    }
 
 
 @get('/api/comments')
