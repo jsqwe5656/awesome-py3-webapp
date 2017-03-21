@@ -5,12 +5,23 @@ import www.markdown2
 from www.webutlis import get, post
 from aiohttp import web
 from www.models import User, Comment, Blog, next_id
-from www.apis import APIError, APIPermissionError, APIValueErrpr
+from www.apis import APIError, APIPermissionError, APIValueErrpr,Page
 from conf.config import configs
 
 markdown2 = www.markdown2
 COOKIE_NAME = 'awesession'
 _COOKIE_KEY = configs.session.secret
+
+
+def get_page_index(page_str):
+    p = 1
+    try:
+        p = int(page_str)
+    except ValueError as e:
+        pass
+    if p < 1:
+        p = 1
+    return p
 
 
 def user2cookie(user, max_age):
@@ -20,18 +31,21 @@ def user2cookie(user, max_age):
     L = [user.id, expires, hashlib.sha1(s.encode('utf-8')).hexdigest()]
     return '-'.join(L)
 
-async def auth_factory(app,handler):
+
+async def auth_factory(app, handler):
     async def auth(request):
-        logging.info('check users:%s,%s' %(request.method,request.path))
+        logging.info('check users:%s,%s' % (request.method, request.path))
         request.__user__ = None
         cookie_str = request.cookies.get(COOKIE_NAME)
         if cookie_str:
             user = await cookie2user(cookie_str)
-            if user :
-                logging.info('set current user:%s'%user.email)
+            if user:
+                logging.info('set current user:%s' % user.email)
                 request.__user__ = user
         return (await handler(request))
+
     return auth
+
 
 async def cookie2user(cookie_str):
     if not cookie_str:
@@ -80,76 +94,125 @@ async def authenticate(*, email, passwd):
     user.passwd = '******'
     r.content_type = 'application/json'
     r.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
+    logging.info(r)
     return r
 
-#检查是否为admin
+
+# 检查是否为admin
 def check_admin(request):
     if request.__user__ is None or request.__user__.admin:
         raise APIPermissionError()
 
+
 @get('/')
-async def index(request):
-    summary = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
-    blogs = [
-        Blog(id='1', name='Test Blog', summary=summary, created_at=time.time() - 120),
-        Blog(id='2', name='Something New', summary=summary, created_at=time.time() - 3600),
-        Blog(id='3', name='Learn Swift', summary=summary, created_at=time.time() - 7200)
-    ]
+async def index(*,page=1):
+    page_index = get_page_index(page)
+    num = await Blog.findNumber('count(id)')
+    page = Page(num)
+    if num ==0:
+        blogs=[]
+    else:
+        blogs = await Blog.findAll(orderBy='created_at desc',limit=(page.offset,page.limit))
     return {
-            '__template__': 'blogs.html',
-            'blogs': blogs
-            #'user':request.user
-        }
+        '__template__': 'blogs.html',
+        'blogs': blogs,
+        'page': page
+    }
 
 
 def text2html(text):
-    lines = map(lambda s:'<p>%s</p>' % s.replace('&','&amp;').replace('<', '&lt;').replace('>', '&gt;'), filter(lambda s: s.strip() != '', text.split('\n')))
+    lines = map(lambda s: '<p>%s</p>' % s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'),
+                filter(lambda s: s.strip() != '', text.split('\n')))
     return ''.join(lines)
+
 
 @get('/blog/{id}')
 async def api_get_blog(id):
     blog = await Blog.find(id)
-    comments = await Comment.findAll('blog_id=?',[id],orderBy='created_at_desc')
+    comments = await Comment.findAll('blog_id=?', [id], orderBy='created_at desc')
     for c in comments:
         c.html_content = text2html(c.content)
     blog.html_content = markdown2.markdown(blog.content)
     return {
-        '__template__':'blog.html',
-        'blog':blog,
-        'comments':comments
+        '__template__': 'blog.html',
+        'blog': blog,
+        'comments': comments
     }
 
+
 @post('/api/blogs')
-def api_create_blogs(request,*,name,summary,content):
+async def api_create_blogs(request, *, name, summary, content):
     check_admin(request)
     if not name or name.strip():
-        raise APIValueErrpr('name','name is not be empty')
+        raise APIValueErrpr('name', 'name is not be empty')
     if not summary or summary.strip():
         raise APIValueErrpr('summary', 'summary is not be empty')
     if not content or content.strip():
         raise APIValueErrpr('content', 'content is not be empty')
     user = request.__user__
-    blog = Blog(user_id=user.id,user_img=user.image,user_name=user.name,summary=summary.strip(),content=content.strip(),name=name.strip())
-    yield from blog.save()
+    blog = Blog(user_id=user.id, user_img=user.image, user_name=user.name, summary=summary.strip(),
+                content=content.strip(), name=name.strip())
+    await blog.save()
     return blog
+
+
+@get('/manage/')
+def manage():
+    return 'redirect:/manage/comments'
+
+@get('/manage/comments')
+def manage_comments(*,page='1'):
+    return {
+        '__template__' : 'manage_comments.html',
+        'page_index':get_page_index(page)
+    }
 
 @get('/manage/blogs/create')
 def manage_create_blog():
     return {
-        '__template__':'manage_blog_edit.html',
-        'id':'',
-        'action':'/api/blogs'
+        '__template__': 'manage_blog_edit.html',
+        'id': '',
+        'action': '/api/blogs'
     }
 
+@get('/manage/blogs/edit')
+def manage_deit_blog(*,id):
+    return {
+        '__template__':'manage_blog_edit.html',
+        'id':id,
+        'action':'/api/blogs/%s' %id
+    }
+
+@get('/manage/blogs')
+def manage_blogs(*,page='1'):
+    return {
+        '__template__':'manage_blogs.html',
+        'page_index':get_page_index(page)
+    }
+
+@get('/manage/users')
+def manage_users(*,page='1'):
+    return {
+        '__template__':'manage_users.html',
+        'page_index':get_page_index(page)
+    }
+
+
 @get('/api/blogs/{id}')
-async def api_get_blog(*,id):
+async def api_get_blog(*, id):
     blog = await Blog.find(id)
     return blog
 
+#TODO
 @get('/api/comments')
-def api_comments(*, page='1'):
-    pass
-
+async def api_comments(*, page='1'):
+    page_index = get_page_index(page)
+    num = await Comment.findNumber('count(id)')
+    p = Page(num,page_index)
+    if num == 0:
+        return dict(page=p,comment=())
+    comments = await Comment.findAll(orderBy='created_at desc',limit=(p.offset,p.limit))
+    return dict(page=p,comments=comments)
 
 @get('/register')
 def api_register():
