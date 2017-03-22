@@ -8,7 +8,8 @@ from aiohttp import web
 from jinja2 import Environment,FileSystemLoader
 import www.orm
 from www.webutlis import add_routes,add_static
-
+from www.handlers import COOKIE_NAME,cookie2user
+from conf.config import configs
 orm = www.orm
 
 def init_jinja2(app,**kw):
@@ -41,6 +42,20 @@ async def logger_factory(app,handler):
         return (await handler(request))
     return logger
 
+async def auth_factory(app, handler):
+    async def auth(request):
+        logging.info('check users:%s,%s' % (request.method, request.path))
+        request.__user__ = None
+        cookie_str = request.cookies.get(COOKIE_NAME)
+        if cookie_str:
+            user = await cookie2user(cookie_str)
+            if user:
+                logging.info('set current user:%s' % user.email)
+                request.__user__ = user
+        return (await handler(request))
+
+    return auth
+
 async def data_factory(app,handler):
     async def parse_data(request):
         if request.method == 'POST':
@@ -64,6 +79,12 @@ async def response_factory(app,handler):
             resp = web.Response(body=r)
             resp.content_type = 'application/octet-stream'
             return resp
+        if isinstance(r,str):
+            if r.startswith('redirect:'):
+                return web.HTTPFound(r[9:])
+            resp = web.Response(body=r.encode('utf-8'))
+            resp.content_type='text/html:charset=utf-8'
+            return resp
         if isinstance(r,dict):
             template = r.get('__template__')
             if template is None:
@@ -80,6 +101,7 @@ async def response_factory(app,handler):
             t,m = r
             if isinstance(t,int) and t>=100 and t<600:
                 return web.Response(t,str(m))
+        #以上都不是的时候
         resp = web.Response(body=str(r).encode('utf-8'))
         resp.content_type = 'text/plain;charset=utf-8'
         return resp
@@ -98,14 +120,11 @@ def datetime_filter(t):
     dt = datetime.fromtimestamp(t)
     return u'%s年%s月%s日'%(dt.year,dt.month,dt.day)
 
-#def index(request):
-#    return web.Response(content_type="text/html",body=b'<h1>Awesome python</h1>')
-
 async def init(loop):
-    await orm.create_pool(loop=loop,host='127.0.0.1',port=3306,user='zbf',password='123456',db='awesome')
+    await orm.create_pool(loop=loop,**configs.db)
     #添加middleware jinja2模板和自注册的支持
     app = web.Application(loop=loop,middlewares=[
-        logger_factory,response_factory
+        logger_factory,response_factory,auth_factory
     ])
     init_jinja2(app,filters=dict(datetime=datetime_filter))
     add_routes(app,'handlers')

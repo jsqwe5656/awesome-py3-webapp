@@ -18,7 +18,7 @@ async def create_pool(loop,**kw):
         port=kw.get('port',3306),
         user=kw['user'],
         password=kw['password'],
-        db=kw['db'],
+        db=kw['database'],
         charset=kw.get('charset','utf8'),
         autocommit=kw.get('autocommit',True),           #设置自动提交
         maxsize=kw.get('maxsize',10),
@@ -46,7 +46,7 @@ async def selcet(sql,args,size=None):
             await cur.execute(sql.replace('?','%s'),args or ())
             #如果传入size参数，就通过fetchmany()获取最多指定数量的记录，否则，通过fetchall()获取所有记录。
             if size:
-                rs = await cur.fetchmang(size)
+                rs = await cur.fetchmany(size)
             else:
                 rs = await cur.fetchall()
         logging.info('rows returned : %s' % len(rs))

@@ -1,5 +1,5 @@
 {%extends '__base__.html'%}
-{% block title %}日志编辑{% endblock %}
+{% block title %}日志{% endblock %}
 {% block beforehead %}
 <script>
 
@@ -29,7 +29,7 @@ function initVM(data){
 	$('#vm').show();
 }
 $(function(){
-	getJSON('/api/blogs/',{
+	getJSON('/api/blogs',{
 		page:{{page_index}}
 	},function(err,result){
 		if(err){

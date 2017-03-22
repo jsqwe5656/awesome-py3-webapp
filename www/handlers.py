@@ -32,21 +32,6 @@ def user2cookie(user, max_age):
     return '-'.join(L)
 
 
-async def auth_factory(app, handler):
-    async def auth(request):
-        logging.info('check users:%s,%s' % (request.method, request.path))
-        request.__user__ = None
-        cookie_str = request.cookies.get(COOKIE_NAME)
-        if cookie_str:
-            user = await cookie2user(cookie_str)
-            if user:
-                logging.info('set current user:%s' % user.email)
-                request.__user__ = user
-        return (await handler(request))
-
-    return auth
-
-
 async def cookie2user(cookie_str):
     if not cookie_str:
         return None
@@ -119,12 +104,32 @@ async def index(*,page=1):
         'page': page
     }
 
+@get('/register')
+def api_register():
+    return {
+        '__template__': 'register.html'
+    }
+
+
+@get('/signin')
+def signin():
+    return {
+        '__template__': 'signin.html'
+    }
+
+
+@get('/signout')
+def singout(request):
+    referer = request.headers.get('Referer')
+    r = web.HTTPFound(referer or '/')
+    r.set_cookie(COOKIE_NAME, '-deleted-', max_age=0, httponly=True)
+    logging.info('user had signed out')
+    return r
 
 def text2html(text):
     lines = map(lambda s: '<p>%s</p>' % s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'),
                 filter(lambda s: s.strip() != '', text.split('\n')))
     return ''.join(lines)
-
 
 @get('/manage/')
 def manage():
@@ -168,7 +173,7 @@ def manage_users(*,page='1'):
     }
 
 @get('/blog/{id}')
-async def get_blog(id):
+async def get_blog(id,request):
     blog = await Blog.find(id)
     comments = await Comment.findAll('blog_id=?', [id], orderBy='created_at desc')
     for c in comments:
@@ -177,7 +182,8 @@ async def get_blog(id):
     return {
         '__template__': 'blog.html',
         'blog': blog,
-        'comments': comments
+        'comments': comments,
+        '__user__':request.__user__
     }
 
 @get('/api/blogs')
@@ -266,29 +272,6 @@ async def api_delete_comment(id,request):
     await c.remove()
     return dict(id=id)
 
-@get('/register')
-def api_register():
-    return {
-        '__template__': 'register.html'
-    }
-
-
-@get('/signin')
-def signin():
-    return {
-        '__template__': 'signin.html'
-    }
-
-
-@get('/signout')
-def singout(request):
-    referer = request.headers.get('Referer')
-    r = web.HTTPFound(referer or '/')
-    r.set_cookie(COOKIE_NAME, '-deleted-', max_age=0, httponly=True)
-    logging.info('user had signed out')
-    return r
-
-
 _RE_EMAIL = re.compile(r'^[a-z0-9\.\-\_]+\@[a-z0-9\-\_]+(\.[a-z0-9\-\_]+){1,4}$')
 _RE_SHA1 = re.compile(r'^[0-9a-f]{40}$')
 
@@ -327,3 +310,7 @@ async def api_register_users(*, email, name, passwd):
     r.content_type = 'application/json'
     r.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
     return r
+
+@get('/api/test')
+def api_test_json():
+    return json.dumps(dict(name='zbf',age='23',content='zbf is the best')).encode('utf-8')
