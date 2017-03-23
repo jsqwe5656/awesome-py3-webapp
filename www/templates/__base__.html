@@ -50,6 +50,9 @@
                     <div class="uk-dropdown uk-dropdown-navbar">
                         <ul class="uk-nav uk-nav-navbar">
                             <li><a href="/signout"><i class="uk-icon-sign-out"></i>登出</a></li>
+                            {%if __user__.admin%}
+                            <li><a href="/manage/blogs"><i class="uk-icon-setting"></i>管理</a></li>
+                            {%endif%}
                         </ul>
                     </div>
                 </li>

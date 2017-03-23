@@ -206,7 +206,7 @@ async def api_create_blogs(request, *, name, summary, content):
     if not content or content.strip():
         raise APIValueErrpr('content', 'content is not be empty')
     user = request.__user__
-    blog = Blog(user_id=user.id, user_img=user.image, user_name=user.name, summary=summary.strip(),
+    blog = Blog(user_id=user.id, user_image=user.image, user_name=user.name, summary=summary.strip(),
                 content=content.strip(), name=name.strip())
     await blog.save()
     return blog
