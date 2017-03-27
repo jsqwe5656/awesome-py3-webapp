@@ -185,7 +185,7 @@ class Model(dict,metaclass=ModelMetaclass):
     def __setattr__(self, key, value):
         self[key] = value
 
-    def getVaule(self,key):
+    def getValue(self,key):
         return getattr(self,key,None)
 
     def getValueOrDefault(self,key):
@@ -258,7 +258,7 @@ class Model(dict,metaclass=ModelMetaclass):
 
     async def update(self):
         args = list(map(self.getValue,self.__fields__))
-        args.append(self.getVaule(self.__primary_key__))
+        args.append(self.getValue(self.__primary_key__))
         rows = await execute(self.__update__,args)
         if rows != 1:
             logging.warning('failed to update bu primary key : affected rows: %s' % rows)

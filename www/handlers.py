@@ -85,7 +85,8 @@ async def authenticate(*, email, passwd):
 
 # 检查是否为admin
 def check_admin(request):
-    if request.__user__ is None or request.__user__.admin:
+    print(request.__user__,request.__user__.admin)
+    if request.__user__ is None or not request.__user__.admin:
         raise APIPermissionError()
 
 
@@ -151,7 +152,7 @@ def manage_create_blog():
     }
 
 @get('/manage/blogs/edit')
-def manage_deit_blog(*,id):
+def manage_edit_blog(*,id):
     return {
         '__template__':'manage_blog_edit.html',
         'id':id,
@@ -189,7 +190,7 @@ async def get_blog(id,request):
 @get('/api/blogs')
 async def api_blogs(*,page='1'):
     page_index = get_page_index(page)
-    num = Blog.findNumber('count(id)')
+    num = await Blog.findNumber('count(id)')
     p = Page(num,page_index)
     if num ==0:
         return dict(page=p,blogs=())
@@ -199,11 +200,11 @@ async def api_blogs(*,page='1'):
 @post('/api/blogs')
 async def api_create_blogs(request, *, name, summary, content):
     check_admin(request)
-    if not name or name.strip():
+    if not name or not name.strip():
         raise APIValueErrpr('name', 'name is not be empty')
-    if not summary or summary.strip():
+    if not summary or not summary.strip():
         raise APIValueErrpr('summary', 'summary is not be empty')
-    if not content or content.strip():
+    if not content or not content.strip():
         raise APIValueErrpr('content', 'content is not be empty')
     user = request.__user__
     blog = Blog(user_id=user.id, user_image=user.image, user_name=user.name, summary=summary.strip(),

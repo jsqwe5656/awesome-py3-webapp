@@ -21,7 +21,7 @@
     <meta charset="UTF-8">
     {% block meta %}<!--可以覆盖设置-->{% endblock %}
     <!--可以覆盖标题-->
-    <title>{% block title %}?{% endblock %} - Awesome PY WebApp</title>
+    <title>{% block title %}?{% endblock %} - ZBF的博客</title>
     <link rel="stylesheet" href="/static/css/uikit.min.css">
     <link rel="stylesheet" href="/static/css/uikit.gradient.min.css">
     <link rel="stylesheet" href="/static/css/awesome.css" />
@@ -39,7 +39,7 @@
         <a href="/" class="uk-navbar-brand ">ZBF博客</a>
         <ul class="uk-navbar-nav">
             <li data-url="blogs"><a href="/"><i class="uk-icon-home"></i>日志</a></li>
-            <li><a target="_blank" href="#"><i class="uk-icon-book"></i>教程</a></li>
+            <li><a target="_blank" href="#"><i class="uk-icon-book"></i>python教程</a></li>
             <li><a target="_blank" href="https://github.com/jsqwe5656/awesome-py3-webapp"><i class="uk-icon-code"></i>源码</a></li>
         </ul>
         <div class="uk-navbar-flip">
@@ -51,7 +51,7 @@
                         <ul class="uk-nav uk-nav-navbar">
                             <li><a href="/signout"><i class="uk-icon-sign-out"></i>登出</a></li>
                             {%if __user__.admin%}
-                            <li><a href="/manage/blogs"><i class="uk-icon-setting"></i>管理</a></li>
+                            <li><a href="/manage/blogs"><i class="uk-icon-sign-out"></i>管理</a></li>
                             {%endif%}
                         </ul>
                     </div>
