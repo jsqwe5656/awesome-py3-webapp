@@ -9,7 +9,7 @@ from jinja2 import Environment,FileSystemLoader
 import www.orm
 from www.webutlis import add_routes,add_static
 from www.handlers import COOKIE_NAME,cookie2user
-from conf.config import configs
+from www.config import configs
 orm = www.orm
 
 def init_jinja2(app,**kw):
