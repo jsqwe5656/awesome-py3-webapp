@@ -13,7 +13,7 @@ env.user = 'zbf'
 env.sudo_user = 'root'
 #服务器地址
 env.hosts = ['www.bfzhang.cn']
-
+env.password='123456'
 #服务器mysql 用户名与口令
 db_user = 'zbf'
 db_password = '123456'
@@ -22,7 +22,7 @@ db_password = '123456'
 _TAR_FILE = 'dist-myblog.tar.gz'
 _REMOTE_TMP_TAR = '/tmp/%s' % _TAR_FILE
 # web app的根目录
-_REMOTE_BASE_DIR = '/blog/myblog'
+_REMOTE_BASE_DIR = '/home/blog'
 
 def _current_path():
     return os.path.abspath('.')
@@ -54,17 +54,23 @@ def build():
         local(' '.join(cmd))
 
 def deploy():
-    newdir = 'www-%s' % datetime.now().strftime('%y-%m-%d_%H.%M.%S')
+    newdir = 'www-%s' % _now()
     #删除已有的tar文件
-    run('rm -f %s' % _REMOTE_TMP_TAR)
+    sudo('rm -f %s' % _REMOTE_TMP_TAR)
     #上传新的tar文件
     put('dist/%s'%_TAR_FILE,_REMOTE_TMP_TAR)
     #创建新目录
     with cd(_REMOTE_BASE_DIR):
         sudo('mkdir %s' %newdir)
     #解压到新目录
-    with cd('%s%s'%(_REMOTE_BASE_DIR,newdir)):
+    with cd('%s/%s'%(_REMOTE_BASE_DIR,newdir)):
         sudo('tar -xzvf %s' % _REMOTE_TMP_TAR)
+    # 重置软链接:
+    with cd(_REMOTE_BASE_DIR):
+        sudo('rm -rf www')
+        sudo('ln -s %s www' % newdir)
+        sudo('chown www-data:www-data www')
+        sudo('chown -R www-data:www-data %s' % newdir)
     #重启Python服务和nginx服务器
     with settings(warn_only=True):
         sudo('supervisorctl stop awesome')
