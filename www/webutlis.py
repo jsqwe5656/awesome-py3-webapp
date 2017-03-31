@@ -4,7 +4,7 @@
 import asyncio, functools, logging, inspect, os
 from aiohttp import web
 from urllib import parse
-from www.apis import APIError
+from apis import APIError
 
 
 def get(path):

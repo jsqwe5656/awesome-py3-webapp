@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import www.config_deault
+import config_deault
 
 class Dict(dict):
     def __init__(self,names=(),values=(),**kw):
@@ -35,7 +35,7 @@ def toDict(d):
         D[k] = toDict(v) if isinstance(v,dict) else v
     return D
 
-configs = www.config_deault.configs
+configs = config_deault.configs
 try:
     import www.config_override
     configs = merge(configs, www.config_override.configs)

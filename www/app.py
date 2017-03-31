@@ -6,11 +6,11 @@ import asyncio,os,json,time
 from datetime import datetime
 from aiohttp import web
 from jinja2 import Environment,FileSystemLoader
-import www.orm
-from www.webutlis import add_routes,add_static
-from www.handlers import COOKIE_NAME,cookie2user
-from www.config import configs
-orm = www.orm
+import orm
+from webutlis import add_routes,add_static
+from handlers import COOKIE_NAME,cookie2user
+from config import configs
+
 
 def init_jinja2(app,**kw):
     logging.info('init jinja2..')

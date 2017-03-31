@@ -96,7 +96,7 @@ def rollback():
         print ('Found current symbol link points to: %s\n' % current)
         try:
             index = files.index(current)
-        except ValueError, e:
+        except ValueError:
             print ('ERROR: symbol link is invalid.')
             return
         if len(files) == index + 1:
@@ -135,7 +135,7 @@ def restore2local():
     files = [f for f in fs if f.startswith('backup-') and f.endswith('.sql.tar.gz')]
     files.sort(cmp=lambda s1, s2: 1 if s1 < s2 else -1)
     if len(files)==0:
-        print 'No backup files found.'
+        print ('No backup files found.')
         return
     print ('Found %s backup files:' % len(files))
     print ('==================================================')
