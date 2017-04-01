@@ -74,7 +74,7 @@ def deploy():
     #重启Python服务和nginx服务器
     with settings(warn_only=True):
         sudo('supervisorctl stop awesome')
-        sudo('supervicorctl start awesome')
+        sudo('supervisorctl start awesome')
         sudo('/etc/init.d/nginx reload')
 
 RE_FILES = re.compile('\r?\n')
